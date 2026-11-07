@@ -1,0 +1,15 @@
+# Local editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local runtime output
+*.log
+tmp/
+temp/
