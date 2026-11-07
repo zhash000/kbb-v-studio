@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>抖音知识视频工作台</title>
+  <style>
+    :root {
+      --ink: #172126;
+      --muted: #68777c;
+      --line: #dbe2e0;
+      --surface: #ffffff;
+      --surface-2: #f4f7f5;
+      --teal-900: #123f3d;
+      --teal-700: #1b6a64;
+      --teal-500: #3e9a88;
+      --mint: #dcefe8;
+      --peach: #f8e8d8;
+      --yellow: #f5c969;
+      --shadow: 0 10px 30px rgba(20, 45, 44, .07);
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: #edf2ef; font-family: "Segoe UI", "Microsoft YaHei", sans-serif; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .app { min-height: 100vh; display: grid; grid-template-columns: 248px minmax(0, 1fr) 300px; }
+
+    .sidebar { background: var(--teal-900); color: #eef8f3; padding: 24px 16px; display: flex; flex-direction: column; gap: 26px; }
+    .brand { display: flex; gap: 11px; align-items: center; padding: 0 9px; }
+    .brand-mark { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.35); border-radius: 9px; background: #21685f; }
+    .brand-mark svg { width: 19px; height: 19px; }
+    .brand h1 { font-size: 15px; margin: 0; letter-spacing: .02em; }
+    .brand p { margin: 2px 0 0; font-size: 11px; color: #a9c5bc; }
+    .nav-label { padding: 0 11px; color: #8db0a7; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+    .nav { display: grid; gap: 5px; }
+    .nav button { border: 0; background: transparent; color: #bfd7d0; text-align: left; border-radius: 8px; padding: 10px 11px; display: flex; align-items: center; gap: 10px; font-size: 13px; }
+    .nav button:hover, .nav button.active { background: #1d5a54; color: #fff; }
+    .nav svg { width: 16px; height: 16px; stroke: currentColor; }
+    .sidebar-bottom { margin-top: auto; border-top: 1px solid rgba(255,255,255,.13); padding: 17px 9px 0; }
+    .sync-row { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #b8d1c8; }
+    .dot { width: 7px; height: 7px; background: #72d1a2; border-radius: 99px; display: inline-block; margin-right: 6px; }
+
+    .main { min-width: 0; padding: 27px 30px 40px; }
+    .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-bottom: 25px; }
+    .eyebrow { color: var(--teal-700); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .topbar h2 { margin: 7px 0 5px; font-size: 26px; letter-spacing: -.025em; }
+    .topbar p { margin: 0; color: var(--muted); font-size: 13px; }
+    .top-actions { display: flex; gap: 8px; align-items: center; }
+    .icon-button, .soft-button, .primary-button { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; min-height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 12px; font-size: 12px; }
+    .icon-button { width: 36px; padding: 0; }
+    .icon-button svg, .soft-button svg, .primary-button svg { width: 15px; height: 15px; }
+    .soft-button:hover, .icon-button:hover { border-color: #a7c5bc; background: #f9fcfa; }
+    .primary-button { color: white; border-color: var(--teal-700); background: var(--teal-700); }
+    .primary-button:hover { background: var(--teal-900); }
+
+    .mode-switch { background: #e4ebe8; border: 1px solid #d3ded9; display: inline-flex; border-radius: 9px; padding: 4px; gap: 4px; margin-bottom: 19px; }
+    .mode-switch button { border: 0; background: transparent; color: var(--muted); padding: 8px 13px; border-radius: 6px; font-size: 12px; }
+    .mode-switch button.active { background: white; color: var(--teal-900); box-shadow: 0 3px 10px rgba(20,45,44,.08); font-weight: 700; }
+
+    .hero-strip { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--teal-500); border-radius: var(--radius); padding: 17px 19px; display: flex; justify-content: space-between; gap: 20px; align-items: center; box-shadow: var(--shadow); margin-bottom: 18px; }
+    .hero-strip h3 { margin: 0 0 5px; font-size: 16px; }
+    .hero-strip p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+    .hero-meta { display: flex; gap: 18px; flex: 0 0 auto; }
+    .metric { min-width: 76px; }
+    .metric strong { display: block; font-size: 20px; color: var(--teal-900); }
+    .metric span { font-size: 11px; color: var(--muted); }
+
+    .section-grid { display: grid; grid-template-columns: minmax(0, 1.32fr) minmax(260px, .68fr); gap: 18px; }
+    .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); min-width: 0; }
+    .panel-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 16px 17px 13px; border-bottom: 1px solid #edf1ef; }
+    .panel-head h3 { margin: 0; font-size: 14px; }
+    .panel-head span { color: var(--muted); font-size: 11px; }
+    .panel-body { padding: 15px 17px 17px; }
+    .rule-card { border: 1px solid var(--line); border-radius: 8px; padding: 13px; margin-bottom: 10px; }
+    .rule-card:last-child { margin-bottom: 0; }
+    .rule-card .rule-top { display: flex; justify-content: space-between; align-items: start; gap: 10px; }
+    .rule-card h4 { margin: 0; font-size: 13px; }
+    .rule-card p { margin: 7px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .tag { display: inline-flex; align-items: center; border-radius: 99px; padding: 4px 7px; font-size: 10px; white-space: nowrap; }
+    .tag.green { background: var(--mint); color: #1f6459; }
+    .tag.orange { background: var(--peach); color: #9b5b2e; }
+    .tag.gray { background: #eef1f0; color: #6b7778; }
+    .formula { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; }
+    .formula span { padding: 7px 8px; border: 1px solid #cbe2d9; background: #f2faf6; color: var(--teal-900); font-size: 11px; border-radius: 6px; }
+    .formula i { color: #8da59d; font-style: normal; font-size: 12px; }
+
+    .sample-list { display: grid; gap: 7px; }
+    .sample { width: 100%; text-align: left; border: 1px solid transparent; background: #f7f9f8; border-radius: 8px; padding: 11px; display: flex; align-items: center; gap: 10px; }
+    .sample:hover, .sample.selected { border-color: #9bc8bb; background: #f0faf6; }
+    .sample-thumb { width: 38px; height: 48px; border-radius: 5px; background: #c9ddd6; position: relative; overflow: hidden; flex: 0 0 auto; }
+    .sample-thumb::after { content: ""; position: absolute; inset: 0; background: linear-gradient(145deg, rgba(16,72,67,.2), rgba(255,215,154,.42)); }
+    .sample:nth-child(2) .sample-thumb { background: #d9c6b9; }
+    .sample:nth-child(3) .sample-thumb { background: #d9e1bc; }
+    .sample:nth-child(4) .sample-thumb { background: #c1d1e0; }
+    .sample-copy { min-width: 0; }
+    .sample-copy strong { display: block; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sample-copy span { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
+    .sample-state { margin-left: auto; font-size: 10px; color: var(--teal-700); }
+
+    .production { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 16px; }
+    .steps { display: grid; gap: 5px; align-content: start; }
+    .step { padding: 10px 11px; border-radius: 7px; border: 1px solid transparent; color: var(--muted); display: flex; gap: 9px; align-items: center; font-size: 12px; text-align: left; background: transparent; }
+    .step:hover, .step.active { color: var(--teal-900); background: #eff8f4; border-color: #cce4da; }
+    .step-num { width: 21px; height: 21px; border-radius: 99px; display: grid; place-items: center; background: #e8eeeb; font-size: 10px; flex: 0 0 auto; }
+    .step.active .step-num { color: white; background: var(--teal-700); }
+    .step.done .step-num { color: white; background: var(--teal-500); }
+    .work-card { border: 1px solid var(--line); border-radius: 8px; padding: 17px; }
+    .work-card h3 { margin: 0; font-size: 16px; }
+    .work-card > p { color: var(--muted); font-size: 12px; line-height: 1.6; margin: 7px 0 15px; }
+    .input-row { display: flex; gap: 8px; }
+    .input-row input { border: 1px solid var(--line); border-radius: 7px; padding: 10px 11px; flex: 1; min-width: 0; color: var(--ink); outline: none; }
+    .input-row input:focus { border-color: var(--teal-500); box-shadow: 0 0 0 3px rgba(62,154,136,.12); }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .chips span { border: 1px solid var(--line); border-radius: 99px; padding: 5px 8px; color: var(--muted); font-size: 10px; }
+    .notice { display: flex; gap: 9px; padding: 10px; background: #fff9e9; border: 1px solid #f1dfae; border-radius: 7px; margin-top: 13px; color: #806428; font-size: 11px; line-height: 1.5; }
+    .notice svg { width: 15px; height: 15px; flex: 0 0 auto; }
+
+    .rightbar { background: #f7faf8; border-left: 1px solid var(--line); padding: 26px 18px; }
+    .codex-card { background: var(--teal-900); color: #f0faf5; border-radius: var(--radius); padding: 16px; }
+    .codex-top { display: flex; justify-content: space-between; align-items: center; }
+    .codex-label { font-size: 10px; letter-spacing: .12em; color: #9fc4b7; text-transform: uppercase; }
+    .live { font-size: 10px; color: #8fe0ae; display: flex; align-items: center; gap: 5px; }
+    .codex-card h3 { margin: 18px 0 5px; font-size: 17px; }
+    .codex-card p { margin: 0; color: #b5d2c8; font-size: 11px; line-height: 1.55; }
+    .codex-action { margin-top: 15px; width: 100%; border: 1px solid #5e9f8e; color: #f5fff9; background: #246a60; border-radius: 7px; padding: 9px; font-size: 11px; }
+    .codex-action:hover { background: #2b7c70; }
+    .right-section { margin-top: 23px; }
+    .right-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .right-title h3 { margin: 0; font-size: 13px; }
+    .right-title span { font-size: 10px; color: var(--muted); }
+    .activity { display: grid; gap: 11px; }
+    .activity-item { display: grid; grid-template-columns: 10px 1fr; gap: 9px; }
+    .activity-dot { width: 7px; height: 7px; margin-top: 5px; border-radius: 99px; background: var(--teal-500); }
+    .activity-item strong { display: block; font-size: 11px; font-weight: 600; }
+    .activity-item span { display: block; color: var(--muted); font-size: 10px; margin-top: 3px; line-height: 1.45; }
+    .health { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 20px; }
+    .health-row { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px; }
+    .health-row span { color: var(--muted); }
+    .bar { height: 5px; background: #dde8e3; border-radius: 99px; overflow: hidden; }
+    .bar i { display: block; height: 100%; width: 78%; border-radius: inherit; background: var(--teal-500); }
+    .muted-note { color: var(--muted); font-size: 10px; line-height: 1.6; margin-top: 9px; }
+
+    .hidden { display: none !important; }
+    @media (max-width: 1120px) { .app { grid-template-columns: 220px minmax(0, 1fr); } .rightbar { display: none; } }
+    @media (max-width: 760px) { .app { display: block; } .sidebar { padding: 14px; position: sticky; top: 0; z-index: 3; } .nav-label, .sidebar-bottom { display: none; } .nav { display: flex; overflow: auto; } .nav button { white-space: nowrap; } .main { padding: 22px 14px 32px; } .topbar { display: block; } .top-actions { margin-top: 14px; } .hero-strip { display: block; } .hero-meta { margin-top: 15px; } .section-grid, .production { grid-template-columns: 1fr; } }
+  </style>
+  <style id="glass-refresh">
+    :root {
+      --ink: #18252a;
+      --muted: #66777d;
+      --line: rgba(71, 103, 111, .18);
+      --surface: rgba(255, 255, 255, .68);
+      --surface-strong: rgba(255, 255, 255, .86);
+      --surface-2: rgba(235, 244, 247, .7);
+      --teal-900: #153f42;
+      --teal-700: #237b78;
+      --teal-500: #4da6a1;
+      --mint: #dff3ed;
+      --peach: #fbe8d5;
+      --shadow: 0 18px 45px rgba(38, 76, 87, .10), 0 2px 8px rgba(38, 76, 87, .06);
+      --radius: 12px;
+    }
+
+    html { background: #e8f0f3; }
+    body { background: #e8f0f3; color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", "Microsoft YaHei", sans-serif; -webkit-font-smoothing: antialiased; }
+    button, input { touch-action: manipulation; }
+    button { -webkit-tap-highlight-color: transparent; transition: background-color .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease, transform .2s ease; }
+    button:active { transform: scale(.98); }
+    button:focus-visible, input:focus-visible { outline: 3px solid rgba(49, 142, 143, .35); outline-offset: 2px; }
+
+    .app { min-height: 100dvh; grid-template-columns: 228px minmax(0, 1fr) 286px; background: linear-gradient(135deg, rgba(255,255,255,.38), rgba(218,237,241,.3)); }
+    .sidebar { background: rgba(249, 253, 254, .54); color: var(--ink); border-right: 1px solid rgba(83, 121, 131, .16); padding: max(22px, env(safe-area-inset-top)) 14px 22px; backdrop-filter: blur(22px) saturate(145%); -webkit-backdrop-filter: blur(22px) saturate(145%); }
+    .brand { padding: 0 10px; }
+    .brand-mark { border: 1px solid rgba(54, 130, 130, .24); background: rgba(255,255,255,.72); color: var(--teal-700); box-shadow: 0 7px 18px rgba(47, 107, 111, .10); }
+    .brand h1 { color: var(--ink); font-weight: 700; }
+    .brand p { color: var(--muted); }
+    .nav-label { color: #8a9ca2; }
+    .nav button { color: #65757a; min-height: 44px; padding: 10px 12px; }
+    .nav button:hover, .nav button.active { background: rgba(255,255,255,.85); color: var(--teal-900); box-shadow: 0 5px 16px rgba(44, 91, 101, .08); }
+    .sidebar-bottom { border-top-color: rgba(83, 121, 131, .16); }
+    .sync-row { color: #5e767b; }
+    .sidebar-bottom p { color: #819196 !important; }
+
+    .main { padding: max(27px, env(safe-area-inset-top)) clamp(18px, 3vw, 34px) max(40px, env(safe-area-inset-bottom)); }
+    .topbar h2 { color: #152b31; font-weight: 700; letter-spacing: -.035em; }
+    .topbar p { color: var(--muted); }
+    .icon-button, .soft-button, .primary-button { min-height: 44px; border-color: var(--line); }
+    .icon-button, .soft-button { background: rgba(255,255,255,.55); }
+    .icon-button:hover, .soft-button:hover { background: rgba(255,255,255,.88); border-color: rgba(42, 128, 128, .35); }
+    .primary-button { background: #287f7d; border-color: #287f7d; box-shadow: 0 8px 18px rgba(40, 127, 125, .2); }
+    .primary-button:hover { background: #1d6868; }
+    .mode-switch { background: rgba(209, 225, 229, .62); border-color: rgba(83, 121, 131, .14); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+    .mode-switch button { min-height: 40px; }
+    .mode-switch button.active { background: rgba(255,255,255,.9); color: var(--teal-900); }
+
+    .hero-strip, .panel { background: rgba(255,255,255,.66); border-color: rgba(83, 121, 131, .17); box-shadow: var(--shadow); backdrop-filter: blur(18px) saturate(125%); -webkit-backdrop-filter: blur(18px) saturate(125%); }
+    .hero-strip { border-left-color: #4ea8a1; }
+    .hero-strip h3, .panel-head h3, .work-card h3 { color: #17383d; }
+    .panel-head { border-bottom-color: rgba(83, 121, 131, .12); }
+    .rule-card, .work-card { background: rgba(255,255,255,.42); border-color: rgba(83, 121, 131, .16); }
+    .rule-card:hover { background: rgba(255,255,255,.7); }
+    .formula span { background: rgba(231, 248, 243, .76); border-color: rgba(66, 158, 145, .25); }
+    .sample { min-height: 68px; background: rgba(247, 251, 251, .62); }
+    .sample:hover, .sample.selected { background: rgba(235, 249, 246, .86); border-color: rgba(72, 163, 149, .42); }
+    .step { min-height: 44px; }
+    .step:hover, .step.active { background: rgba(237, 249, 246, .82); border-color: rgba(72, 163, 149, .28); }
+    .input-row input { min-height: 46px; background: rgba(255,255,255,.75); border-color: rgba(83, 121, 131, .2); }
+    .notice { background: rgba(255, 249, 233, .78); border-color: rgba(223, 190, 110, .48); }
+
+    .rightbar { background: rgba(240, 247, 248, .48); border-left-color: rgba(83, 121, 131, .14); padding: max(26px, env(safe-area-inset-top)) 16px max(26px, env(safe-area-inset-bottom)); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+    .codex-card { background: rgba(22, 70, 73, .88); border: 1px solid rgba(255,255,255,.24); box-shadow: 0 16px 32px rgba(30, 83, 87, .18); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+    .codex-action { min-height: 44px; background: rgba(255,255,255,.13); border-color: rgba(255,255,255,.28); }
+    .codex-action:hover { background: rgba(255,255,255,.2); }
+    .health { border-top-color: rgba(83, 121, 131, .15); }
+
+    @media (max-width: 1120px) { .app { grid-template-columns: 220px minmax(0, 1fr); } }
+    @media (max-width: 760px) {
+      .app { background: #e8f0f3; }
+      .sidebar { padding: max(9px, env(safe-area-inset-top)) 10px 9px; border-right: 0; border-bottom: 1px solid rgba(83, 121, 131, .15); }
+      .brand { padding: 0 4px 8px; }
+      .brand-mark { width: 30px; height: 30px; }
+      .nav { gap: 4px; padding-bottom: 1px; }
+      .nav button { min-height: 44px; padding: 8px 10px; }
+      .nav button svg { width: 15px; height: 15px; }
+      .main { padding: 22px 14px 34px; }
+      .topbar h2 { font-size: 24px; }
+      .mode-switch { width: 100%; }
+      .mode-switch button { flex: 1; padding: 8px 7px; }
+      .hero-strip { padding: 16px; }
+      .hero-meta { gap: 16px; }
+      .section-grid, .production { grid-template-columns: 1fr; }
+      .panel-body[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+  </style>
+  <style id="rhine-archive-adaptation">
+    :root {
+      --ink: #1c292c; --muted: #718084; --line: rgba(72, 91, 96, .16);
+      --surface: rgba(255, 255, 255, .58); --surface-strong: rgba(255, 255, 255, .82);
+      --teal-900: #203f40; --teal-700: #447b70; --teal-500: #85a88e;
+      --mint: #e5f0e7; --peach: #f6ead7;
+      --shadow: 0 16px 42px rgba(50, 72, 72, .09), 0 2px 8px rgba(50, 72, 72, .045);
+    }
+    body { background: radial-gradient(ellipse at 15% 8%, rgba(221,238,231,.85), transparent 31%), radial-gradient(ellipse at 89% 22%, rgba(241,231,209,.68), transparent 29%), linear-gradient(145deg,#f7f9f7 0%,#edf2ef 54%,#e8efee 100%); }
+    .app { background: transparent; grid-template-columns: 220px minmax(0,1fr) 280px; }
+    .sidebar { background: rgba(249,251,249,.48); border-right-color: rgba(91,111,107,.12); backdrop-filter: blur(24px) saturate(125%); -webkit-backdrop-filter: blur(24px) saturate(125%); }
+    .brand-mark { border-radius: 50%; width: 36px; height: 36px; color: #47776d; background: rgba(255,255,255,.66); border-color: rgba(78,112,100,.22); box-shadow: inset 0 0 0 4px rgba(231,241,235,.76), 0 5px 16px rgba(44,75,66,.08); }
+    .brand-mark svg { width: 16px; height: 16px; }
+    .brand h1 { font-size: 14px; }
+    .brand p, .nav-label, .eyebrow, .codex-label { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .12em; }
+    .brand p { font-size: 9px; text-transform: uppercase; }
+    .nav button { border-radius: 5px; position: relative; }
+    .nav button.active { background: rgba(255,255,255,.62); box-shadow: inset 2px 0 #a2b784, 0 4px 14px rgba(49,76,71,.045); }
+    .nav button.active::after { content: ""; width: 5px; height: 5px; border-radius: 50%; margin-left: auto; background: #91a87a; }
+    .sidebar-bottom { border-top-style: dashed; }
+    .main { padding-top: max(30px, env(safe-area-inset-top)); }
+    .eyebrow { color: #7c8b85; font-size: 10px; }
+    .topbar h2 { font-size: 25px; letter-spacing: -.025em; }
+    .mode-switch { background: rgba(225,232,227,.42); border-color: rgba(93,112,106,.12); border-radius: 7px; }
+    .mode-switch button, .tag { border-radius: 4px; }
+    .mode-switch button.active { box-shadow: 0 2px 7px rgba(48,68,61,.08); }
+    .hero-strip, .panel { background: rgba(251,252,250,.58); border: 1px solid rgba(255,255,255,.8); outline: 1px solid rgba(90,115,106,.075); border-radius: 8px; box-shadow: var(--shadow); backdrop-filter: blur(20px) saturate(118%); -webkit-backdrop-filter: blur(20px) saturate(118%); }
+    .hero-strip { position: relative; overflow: hidden; border-left: 1px solid rgba(255,255,255,.8); }
+    .hero-strip::before { content: "STRATEGY ARCHIVE / 001"; position: absolute; right: 19px; top: 13px; color: rgba(79,104,95,.48); font: 9px ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing: .1em; }
+    .hero-strip h3 { font-size: 15px; }
+    .metric strong { font: 500 19px ui-monospace,SFMono-Regular,Consolas,monospace; }
+    .metric span { font-size: 10px; }
+    .panel-head { background: rgba(251,252,250,.18); }
+    .rule-card, .work-card { border-radius: 6px; background: rgba(255,255,255,.36); }
+    .rule-card h4 { font-size: 12px; }
+    .formula span { border-radius: 4px; }
+    .sample { min-height: 68px; background: rgba(246,249,246,.34); border-radius: 5px; border-bottom: 1px solid rgba(91,111,107,.12); }
+    .sample.selected { box-shadow: inset 2px 0 #a2b784; }
+    .sample-thumb { border-radius: 3px; border: 1px solid rgba(255,255,255,.8); }
+    .sample-copy span, .sample-state, .step-num { font-family: ui-monospace,SFMono-Regular,Consolas,monospace; }
+    .sample-copy span { font-size: 9px; }
+    .step, .input-row input, .notice { border-radius: 5px; }
+    .rightbar { background: rgba(249,251,249,.35); border-left-color: rgba(91,111,107,.12); }
+    .codex-card { color: var(--ink); background: rgba(255,255,255,.59); border: 1px solid rgba(255,255,255,.88); outline: 1px solid rgba(90,115,106,.08); border-radius: 8px; box-shadow: var(--shadow); }
+    .codex-label { color: #788a82; }
+    .codex-card h3 { color: #203b39; }
+    .codex-card p { color: #6d7b78; }
+    .codex-action { color: #365e54; background: rgba(225,237,229,.64); border-color: rgba(105,139,121,.23); border-radius: 5px; }
+    .codex-action:hover { background: rgba(213,231,219,.9); }
+    .live { color: #987340 !important; }
+    .health { border-top-style: dashed; }
+    .bar { background: rgba(189,207,196,.5); }
+    .bar i { background: #98ac7e; }
+    @media (max-width: 1120px) { .app { grid-template-columns: 220px minmax(0,1fr); } }
+    @media (max-width: 760px) {
+      .app { background: transparent; }
+      .sidebar { background: rgba(248,251,249,.72); box-shadow: 0 6px 20px rgba(50,72,72,.05); }
+      .brand-mark { width: 30px; height: 30px; }
+      .topbar h2 { font-size: 23px; }
+      .hero-strip::before { top: auto; bottom: 8px; right: 12px; font-size: 8px; }
+      .hero-meta { gap: 14px; }
+      .metric strong { font-size: 18px; }
+      .panel { backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 19c6-1 10-5 11-11"/><path d="M5 19c0-5 2-8 6-10 3-1 6-1 8-1"/><path d="M7 16c2-2 4-3 7-3"/></svg></div>
+        <div><h1>知识视频工作台</h1><p>Douyin Knowledge Studio</p></div>
+      </div>
+      <div>
+        <div class="nav-label">Workspace</div>
+        <nav class="nav" aria-label="工作区导航">
+          <button class="active" data-nav="overview"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>总览</button>
+          <button data-nav="samples"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M5 5h14v14H5z"/><path d="m8 15 3-3 2 2 3-4"/></svg>样本分析</button>
+          <button data-nav="rules"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M6 4h12v16H6z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>方法库</button>
+          <button data-nav="production"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="m5 4 14 8-14 8z"/><path d="M9 8v8"/></svg>视频生产</button>
+          <button data-nav="review"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M5 5h14v14H5z"/><path d="m8 12 3 3 5-6"/></svg>复盘记录</button>
+        </nav>
+      </div>
+      <div class="sidebar-bottom"><div class="sync-row"><span><i class="dot" style="background:#d7a94e"></i>Codex 联动预览</span><span>v0.4</span></div><p style="color:#89aaa0;font-size:10px;line-height:1.6;margin:10px 0 0">当前展示目标交互，真实任务调用尚未接入。视觉参考 RhineLabUI 的档案终端结构。</p></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div><div class="eyebrow">KNOWLEDGE VIDEO · ANALYSIS OS</div><h2>创作方法档案</h2><p id="page-subtitle">从样本中提炼规律，再用规律生产原创视频。</p></div>
+        <div class="top-actions"><button class="icon-button" title="搜索"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg></button><button class="soft-button" id="refreshBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 11a8 8 0 0 0-14.8-4L3 10"/><path d="M3 5v5h5"/><path d="M4 13a8 8 0 0 0 14.8 4L21 14"/><path d="M21 19v-5h-5"/></svg>同步状态</button></div>
+      </header>
+
+      <div class="mode-switch" role="tablist" aria-label="工作模式"><button class="active" data-mode="analysis">模式 A · 样本分析与更新</button><button data-mode="production">模式 B · 调用方法生产</button></div>
+
+      <section class="hero-strip">
+        <div><h3 id="hero-title">当前方法库处于可用状态</h3><p id="hero-copy">已有 6 条同账号样本沉淀为叙事公式、画面配合规则和事实核验边界。</p></div>
+        <div class="hero-meta"><div class="metric"><strong>06</strong><span>已归档样本</span></div><div class="metric"><strong>12</strong><span>稳定规则</span></div><div class="metric"><strong>03</strong><span>待验证问题</span></div></div>
+      </section>
+
+      <div id="analysisView">
+        <section class="section-grid">
+          <article class="panel"><div class="panel-head"><div><h3>当前账号叙事公式</h3><span>由已分析样本归纳</span></div><span class="tag green">已确认</span></div><div class="panel-body"><div class="formula"><span>熟悉入口</span><i>→</i><span>反常识问题</span><i>→</i><span>可视化解释</span><i>→</i><span>冲突升级</span><i>→</i><span>更大主题</span><i>→</i><span>重新定义</span></div><div class="rule-card" style="margin-top:14px"><div class="rule-top"><h4>规则的使用边界</h4><span class="tag gray">方法层</span></div><p>这是内容推进的骨架，不是固定脚本模板。每条视频要根据主题选择人物、机制、利益或风险作为中段推进力。</p></div><div class="rule-card"><div class="rule-top"><h4>最近一次更新</h4><span class="tag orange">待复核</span></div><p>新增“原始文案保真”规则：完整转写稿必须保留原句和顺序，识别错误与史实纠错另列。</p></div></div></article>
+          <article class="panel"><div class="panel-head"><div><h3>样本库</h3><span>选择一个样本查看</span></div><button class="icon-button" title="新增样本" id="addSample"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></button></div><div class="panel-body"><div class="sample-list"><button class="sample selected"><i class="sample-thumb"></i><span class="sample-copy"><strong>茶叶风暴：一片不起眼的树叶</strong><span>7:13 · 历史 / 贸易 / 科学</span></span><span class="sample-state">已分析</span></button><button class="sample"><i class="sample-thumb"></i><span class="sample-copy"><strong>护理：一把斩向死亡的温柔刀</strong><span>8:04 · 职业 / 生死 / 价值</span></span><span class="sample-state">已分析</span></button><button class="sample"><i class="sample-thumb"></i><span class="sample-copy"><strong>你摄入的每一口食物</strong><span>7:36 · 食物 / 身体 / 机制</span></span><span class="sample-state">已分析</span></button><button class="sample"><i class="sample-thumb"></i><span class="sample-copy"><strong>“因为山在那里”</strong><span>8:21 · 人生 / 极限 / 风险</span></span><span class="sample-state">已分析</span></button></div></div></article>
+        </section>
+        <section class="panel" style="margin-top:18px"><div class="panel-head"><div><h3>分析与更新队列</h3><span>这些问题会决定下一版方法库</span></div><span class="tag orange">3 项待处理</span></div><div class="panel-body" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px"><div class="rule-card"><div class="rule-top"><h4>声音节奏</h4><span class="tag orange">待补样本</span></div><p>已有画面和文案规律，尚缺逐字音频、停顿和音效的可验证数据。</p></div><div class="rule-card"><div class="rule-top"><h4>平台表现</h4><span class="tag gray">待数据</span></div><p>不能把留存、评论和完播归因到单一镜头，需要接入发布后数据。</p></div><div class="rule-card"><div class="rule-top"><h4>公式变体</h4><span class="tag green">可尝试</span></div><p>职业题材可能以“工作场景 → 代价 → 社会意义”替代历史冲突段。</p></div></div></section>
+      </div>
+
+      <div id="productionView" class="hidden">
+        <section class="panel"><div class="panel-head"><div><h3>新视频生产流程</h3><span>使用当前方法库，不自动改写通用规则</span></div><span class="tag green">模式 B</span></div><div class="panel-body production"><div class="steps"><button class="step done"><b class="step-num">✓</b>确定主题</button><button class="step active"><b class="step-num">2</b>事实核验</button><button class="step"><b class="step-num">3</b>叙事骨架</button><button class="step"><b class="step-num">4</b>旁白与分镜</button><button class="step"><b class="step-num">5</b>声音与剪辑</button><button class="step"><b class="step-num">6</b>发布复盘</button></div><div class="work-card"><h3>先告诉 Codex 你要做什么</h3><p>输入主题或直接描述目标，Codex 会按方法库生成下一步工作材料。</p><label for="topicInput" style="display:block;font-size:12px;font-weight:600;margin:0 0 7px">视频主题</label><div class="input-row"><input id="topicInput" aria-describedby="topicHint" placeholder="例如：为什么一座桥会改变一座城市？" /><button class="primary-button" id="sendTopic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m4 4 16 8-16 8 3-8-3-8Z"/><path d="M7 12h10"/></svg>联动预览</button></div><span id="topicHint" class="muted-note">演示按钮只更新本页活动记录，不会创建 Codex 任务。</span><div class="chips"><span>历史与文明</span><span>身体机制</span><span>职业价值</span><span>技术与社会</span></div><div class="notice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>生产任务中的新想法会记录为“待更新建议”，不会未经验证直接改变方法库。</span></div></div></div></section>
+        <section class="section-grid" style="margin-top:18px"><article class="panel"><div class="panel-head"><h3>当前可调用模块</h3><span>按需组合</span></div><div class="panel-body"><div class="rule-card"><div class="rule-top"><h4>叙事公式</h4><span class="tag green">可用</span></div><p>熟悉入口 → 反常识问题 → 可视化解释 → 冲突升级 → 更大主题 → 重新定义</p></div><div class="rule-card"><div class="rule-top"><h4>视听协同</h4><span class="tag green">可用</span></div><p>对应、补充、证明、对照、留白五种画面—文案关系。</p></div></div></article><article class="panel"><div class="panel-head"><h3>输出物</h3><span>完成后自动归档</span></div><div class="panel-body"><div class="chips" style="margin-top:0"><span>事实表</span><span>标题与钩子</span><span>完整旁白</span><span>逐句分镜</span><span>声音提示</span><span>发布复盘表</span></div></div></article></section>
+      </div>
+    </main>
+
+    <aside class="rightbar">
+      <div class="codex-card"><div class="codex-top"><span class="codex-label">Codex connection</span><span class="live" style="color:#f5d486"><i class="dot" style="background:#e3b552"></i>待接入</span></div><h3>主要操作交给 Codex</h3><p>工作台展示上下文、规则和产出状态。分析、核验、写作和更新仍由 Codex 执行。</p><button class="codex-action" id="codexAction">联动预览</button></div>
+      <section class="right-section"><div class="right-title"><h3>最近活动</h3><span id="activityCount">刚刚更新</span></div><div class="activity" id="activityList"><div class="activity-item"><i class="activity-dot"></i><div><strong>原始文案保真规则已写入</strong><span>单视频分析参考 · 2 分钟前</span></div></div><div class="activity-item"><i class="activity-dot"></i><div><strong>茶叶风暴分析文档已生成</strong><span>4 页 · 已完成版面检查</span></div></div><div class="activity-item"><i class="activity-dot" style="background:#d8a84b"></i><div><strong>声音节奏分析等待补充</strong><span>需要音频转写或更多样本</span></div></div></div></section>
+      <section class="health"><div class="health-row"><strong>方法库健康度</strong><span>78%</span></div><div class="bar"><i></i></div><p class="muted-note">规则已能支持新主题生产；声音节奏和平台数据仍是主要缺口。</p></section>
+    </aside>
+  </div>
+  <script>
+    const modeButtons = document.querySelectorAll('[data-mode]');
+    const analysisView = document.getElementById('analysisView');
+    const productionView = document.getElementById('productionView');
+    const heroTitle = document.getElementById('hero-title');
+    const heroCopy = document.getElementById('hero-copy');
+    const subtitle = document.getElementById('page-subtitle');
+    modeButtons.forEach(btn => btn.addEventListener('click', () => {
+      modeButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const isProd = btn.dataset.mode === 'production';
+      analysisView.classList.toggle('hidden', isProd);
+      productionView.classList.toggle('hidden', !isProd);
+      heroTitle.textContent = isProd ? '当前方法库可以开始一次生产任务' : '当前方法库处于可用状态';
+      heroCopy.textContent = isProd ? '先输入主题，Codex 会按事实核验、叙事骨架和视听协同逐步生成制作材料。' : '已有 6 条同账号样本沉淀为叙事公式、画面配合规则和事实核验边界。';
+      subtitle.textContent = isProd ? '从主题开始，沿着已验证的方法完成一条原创视频。' : '从样本中提炼规律，再用规律生产原创视频。';
+    }));
+    document.querySelectorAll('.nav button').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (btn.dataset.nav === 'production') document.querySelector('[data-mode="production"]').click();
+      if (btn.dataset.nav !== 'production') document.querySelector('[data-mode="analysis"]').click();
+    }));
+    document.querySelectorAll('.sample').forEach(sample => sample.addEventListener('click', () => { document.querySelectorAll('.sample').forEach(s => s.classList.remove('selected')); sample.classList.add('selected'); }));
+    const activityList = document.getElementById('activityList');
+    function addActivity(title, detail) { const item = document.createElement('div'); item.className = 'activity-item'; item.innerHTML = '<i class="activity-dot"></i><div><strong></strong><span></span></div>'; item.querySelector('strong').textContent = title; item.querySelector('span').textContent = detail; activityList.prepend(item); }
+    document.getElementById('sendTopic').addEventListener('click', () => { const input = document.getElementById('topicInput'); const topic = input.value.trim() || '未命名主题'; addActivity('联动预览：主题已录入', topic + ' · 真实 Codex 调用尚未接入'); input.value = ''; alert('这是联动交互预览。当前 HTML 尚未连接真实 Codex 任务接口。'); });
+    document.getElementById('codexAction').addEventListener('click', () => alert('联动预览：真实 Codex 任务上下文接口尚未接入。'));
+    document.getElementById('refreshBtn').addEventListener('click', (e) => { e.currentTarget.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 11a8 8 0 0 0-14.8-4L3 10"/><path d="M3 5v5h5"/><path d="M4 13a8 8 0 0 0 14.8 4L21 14"/><path d="M21 19v-5h-5"/></svg>已同步'; addActivity('工作台状态已同步', '方法库与 Codex 上下文保持一致'); });
+    document.getElementById('addSample').addEventListener('click', () => alert('下一步可接入 Codex：选择视频文件后自动建立样本档案。'));
+  </script>
+</body>
+</html>
