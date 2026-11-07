@@ -1,0 +1,6 @@
+interface:
+  display_name: "抖音知识视频创作"
+  short_description: "拆解样本并产出可验证的抖音知识视频"
+  default_prompt: "使用 $douyin-knowledge-video 分析样本并生成原创抖音知识视频方案。"
+policy:
+  allow_implicit_invocation: true
